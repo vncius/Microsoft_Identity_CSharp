@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebApp.Identity.Models;
 
 namespace WebApp.Identity
 {
@@ -23,6 +24,8 @@ namespace WebApp.Identity
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddIdentityCore<MyUser>(options => { });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
