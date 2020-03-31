@@ -30,6 +30,11 @@ namespace WebApp.Identity
             services.AddIdentityCore<MyUser>(options => { });
 
             services.AddScoped<IUserStore<MyUser>, MyUserStore>();
+
+            // ANTES DE VERIFICAR SE TEM PERMISSÃO VERIFICA SE USUARIO TA AUTENTICADO POR COOKIE
+            services.AddAuthentication("cookies")  
+                // INDICA O CAMINHO A REDIRECIONAR CASO USUÁRIO NÃO AUTENTICADO
+                .AddCookie("cookies", options => options.LoginPath = "/Home/Login"); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -43,6 +48,9 @@ namespace WebApp.Identity
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseAuthentication(); // FAZ A APLICAÇÃO USAR AUTENTICAÇÃO
+
             app.UseStaticFiles();
 
             app.UseRouting();

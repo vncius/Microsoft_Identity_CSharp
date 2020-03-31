@@ -21,7 +21,7 @@ namespace WebApp.Identity.Autenticacao
                     "insert into Users([Id],"+
                     "[UserName],"+
                     "[NormalizedUserName]," +
-                    "[PasswordHas]) " +
+                    "[PasswordHash]) " +
                     "Values(@id,@userName,@normalizedUserName, @passwordHash)",
                     new
                     {
@@ -118,7 +118,7 @@ namespace WebApp.Identity.Autenticacao
                     "set [id] = @id,"+
                     "[UserName] = @userName," +
                     "[NormalizedUserName] = @normalizedUserName," +
-                    "[PasswordHas] = @passwordHash" +
+                    "[PasswordHash] = @passwordHash" +
                     "where [Id] = @id",
                     new
                     {
