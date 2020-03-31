@@ -9,9 +9,9 @@ using WebApp.Identity.Models;
 
 namespace WebApp.Identity.Autenticacao
 {
-    public class MyUserStore : IUserStore<MyUser>
+    public class MyUserStore : IUserStore<MyUser>, IUserPasswordStore<MyUser>
     {
-        private const string string_connection = "Integrated Security=SSPI;Persist Security Info=False;User ID=sa;Initial Catalog=IdentityCurso;Data Source=DESKTOP-G0OPKKF\SQLEXPRESS";
+        private const string string_connection = "Integrated Security=SSPI;Persist Security Info=False;User ID=sa;Initial Catalog=IdentityCurso;Data Source=DESKTOP-G0OPKKF\\SQLEXPRESS";
 
         public async Task<IdentityResult> CreateAsync(MyUser user, CancellationToken cancellationToken)
         {
@@ -21,7 +21,7 @@ namespace WebApp.Identity.Autenticacao
                     "insert into Users([Id],"+
                     "[UserName],"+
                     "[NormalizedUserName]," +
-                    "[PasswordHash]) " +
+                    "[PasswordHas]) " +
                     "Values(@id,@userName,@normalizedUserName, @passwordHash)",
                     new
                     {
@@ -77,7 +77,7 @@ namespace WebApp.Identity.Autenticacao
             using (var connection = GetOpenConnection())
             {
                 return await connection.QueryFirstOrDefaultAsync<MyUser>(
-                    "select * from Users where normalizedUserName = @iname",
+                    "select * from Users where normalizedUserName = @nome",
                     new { nome = normalizedUserName });
             }
         }
@@ -118,7 +118,7 @@ namespace WebApp.Identity.Autenticacao
                     "set [id] = @id,"+
                     "[UserName] = @userName," +
                     "[NormalizedUserName] = @normalizedUserName," +
-                    "[PasswordHash] = @passwordHash"+
+                    "[PasswordHas] = @passwordHash" +
                     "where [Id] = @id",
                     new
                     {
@@ -130,6 +130,22 @@ namespace WebApp.Identity.Autenticacao
             }
 
             return IdentityResult.Success;
+        }
+
+        public Task<string> GetPasswordHashAsync(MyUser user, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(user.PasswordHash);
+        }
+
+        public Task<bool> HasPasswordAsync(MyUser user, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(user.PasswordHash != null);
+        }
+
+        public Task SetPasswordHashAsync(MyUser user, string passwordHash, CancellationToken cancellationToken)
+        {
+            user.PasswordHash = passwordHash;
+            return Task.CompletedTask;
         }
     }
 }

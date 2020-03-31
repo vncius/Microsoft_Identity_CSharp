@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebApp.Identity.Autenticacao;
 using WebApp.Identity.Models;
 
 namespace WebApp.Identity
@@ -26,6 +28,8 @@ namespace WebApp.Identity
             services.AddControllersWithViews();
 
             services.AddIdentityCore<MyUser>(options => { });
+
+            services.AddScoped<IUserStore<MyUser>, MyUserStore>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
