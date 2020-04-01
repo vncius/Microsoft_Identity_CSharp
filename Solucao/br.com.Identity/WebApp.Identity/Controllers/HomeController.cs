@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using WebApp.Identity.Autenticacao;
 using WebApp.Identity.Models;
 
 namespace WebApp.Identity.Controllers

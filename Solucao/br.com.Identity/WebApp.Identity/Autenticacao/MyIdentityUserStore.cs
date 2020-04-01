@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WebApp.Identity.Models
+namespace WebApp.Identity.Autenticacao
 {
     public class MyIdentityUserStore : UserStoreBase<IdentityUser,
                                                         string,
