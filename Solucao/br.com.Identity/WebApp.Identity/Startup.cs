@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,6 +17,9 @@ namespace WebApp.Identity
 {
     public class Startup
     {
+
+        const string connectionString = @"Integrated Security=SSPI;Persist Security Info=False;User ID=sa;Initial Catalog=IdentityCurso;Data Source=DESKTOP-G0OPKKF\\SQLEXPRESS";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -27,9 +32,15 @@ namespace WebApp.Identity
         {
             services.AddControllersWithViews();
 
-            services.AddIdentityCore<MyUser>(options => { });
+            services.AddDbContext<IdentityDbContext>(
+                opt => opt.UseSqlServer(connectionString)
+            );
 
-            services.AddScoped<IUserStore<MyUser>, MyUserStore>();
+            services.AddIdentityCore<IdentityUser>(options => { });
+
+            //services.AddScoped<IUserStore<MyUser>, MyUserStore>();
+            services.AddScoped<IUserStore<IdentityUser>, 
+                UserOnlyStore<IdentityUser, IdentityDbContext>>();
 
             // ANTES DE VERIFICAR SE TEM PERMISSÃO VERIFICA SE USUARIO TA AUTENTICADO POR COOKIE
             services.AddAuthentication("cookies")  
