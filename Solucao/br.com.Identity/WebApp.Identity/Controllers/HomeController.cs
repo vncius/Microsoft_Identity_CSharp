@@ -13,18 +13,15 @@ namespace WebApp.Identity.Controllers
     //[ApiController]   VALIDA TODOS OS OBJETOS DE ENTRADA SEM PRECISAR DO ModelState -- NÃO DEVE RETORNAR VIEW
     public class HomeController : Controller
     {
-        //private readonly ILogger<HomeController> _logger;
-        private readonly UserManager<MyUser> _userManager;
+        
+        //private readonly UserManager<MyUser> _userManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public HomeController(UserManager<MyUser> userManager)
+        //public HomeController(UserManager<MyUser> userManager)
+        public HomeController(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
-        }        
-
-        //public HomeController(ILogger<HomeController> logger)
-        //{
-        //    _logger = logger;
-        //}
+        }      
 
         public IActionResult Index()
         {
@@ -89,12 +86,19 @@ namespace WebApp.Identity.Controllers
 
                 if (user == null)
                 {
-                    user = new MyUser()
+                    user = new IdentityUser()
                     {
                         Id = Guid.NewGuid().ToString(),
                         UserName = model.UserName,
 
                     };
+
+                    //user = new MyUser()
+                    //{
+                    //    Id = Guid.NewGuid().ToString(),
+                    //    UserName = model.UserName,
+
+                    //};
 
                     var result = await _userManager.CreateAsync(user, model.Password);
                 }
