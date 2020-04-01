@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,7 +19,7 @@ namespace WebApp.Identity
     public class Startup
     {
 
-        const string connectionString = @"Integrated Security=SSPI;Persist Security Info=False;User ID=sa;Initial Catalog=IdentityCurso;Data Source=DESKTOP-G0OPKKF\\SQLEXPRESS";
+        const string connectionString = @"Integrated Security=SSPI;Persist Security Info=False;User ID=sa;Initial Catalog=IdentityCurso;Data Source=DESKTOP-G0OPKKF\SQLEXPRESS";
 
         public Startup(IConfiguration configuration)
         {
@@ -32,9 +33,13 @@ namespace WebApp.Identity
         {
             services.AddControllersWithViews();
 
+            var migrationAssembly = typeof(Startup)
+               .GetTypeInfo().Assembly
+               .GetName().Name;
+
             services.AddDbContext<IdentityDbContext>(
-                opt => opt.UseSqlServer(connectionString)
-            );
+                opt => opt.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly))
+            );           
 
             services.AddIdentityCore<IdentityUser>(options => { });
 
