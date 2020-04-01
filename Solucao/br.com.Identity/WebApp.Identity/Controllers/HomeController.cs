@@ -16,10 +16,10 @@ namespace WebApp.Identity.Controllers
     {
         
         //private readonly UserManager<MyUser> _userManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<MyUser> _userManager;
 
         //public HomeController(UserManager<MyUser> userManager)
-        public HomeController(UserManager<IdentityUser> userManager)
+        public HomeController(UserManager<MyUser> userManager)
         {
             _userManager = userManager;
         }      
@@ -87,7 +87,7 @@ namespace WebApp.Identity.Controllers
 
                 if (user == null)
                 {
-                    user = new IdentityUser()
+                    user = new MyUser()
                     {
                         Id = Guid.NewGuid().ToString(),
                         UserName = model.UserName,

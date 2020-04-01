@@ -37,15 +37,15 @@ namespace WebApp.Identity
                .GetTypeInfo().Assembly
                .GetName().Name;
 
-            services.AddDbContext<IdentityDbContext>(
+            services.AddDbContext<MyUserDbContext>(
                 opt => opt.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly))
             );           
 
-            services.AddIdentityCore<IdentityUser>(options => { });
+            services.AddIdentityCore<MyUser>(options => { });
 
             //services.AddScoped<IUserStore<MyUser>, MyUserStore>();
-            services.AddScoped<IUserStore<IdentityUser>, 
-                UserOnlyStore<IdentityUser, IdentityDbContext>>();
+            services.AddScoped<IUserStore<MyUser>, 
+                UserOnlyStore<MyUser, MyUserDbContext>>();
 
             // ANTES DE VERIFICAR SE TEM PERMISSÃO VERIFICA SE USUARIO TA AUTENTICADO POR COOKIE
             services.AddAuthentication("cookies")  
