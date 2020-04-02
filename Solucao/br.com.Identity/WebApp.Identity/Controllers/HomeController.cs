@@ -17,11 +17,13 @@ namespace WebApp.Identity.Controllers
         
         //private readonly UserManager<MyUser> _userManager;
         private readonly UserManager<MyUser> _userManager;
+        private readonly IUserClaimsPrincipalFactory<MyUser> _userClaimsPrincipalFactory;
 
         //public HomeController(UserManager<MyUser> userManager)
-        public HomeController(UserManager<MyUser> userManager)
+        public HomeController(UserManager<MyUser> userManager, IUserClaimsPrincipalFactory<MyUser> userClaimsPrincipalFactory)
         {
             _userManager = userManager;
+            _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         }      
 
         public IActionResult Index()
@@ -62,12 +64,11 @@ namespace WebApp.Identity.Controllers
 
                 if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
                 {
-                    var identity = new ClaimsIdentity("cookies");
-                    identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id));
-                    identity.AddClaim(new Claim(ClaimTypes.Name, user.UserName));
-
+                                           // O USERCLAIMS CRIA 3 CLAINS AUTOMÁTICAMENTE
+                    var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
+                    
                     // ADICIONA AS CLAIMS DO USUÁRIO EM COOKIE
-                    await HttpContext.SignInAsync("cookies", new ClaimsPrincipal(identity));
+                    await HttpContext.SignInAsync("Identity.Application", principal);
 
                     return RedirectToAction("About");
                 }

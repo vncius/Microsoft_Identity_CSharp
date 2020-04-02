@@ -39,18 +39,14 @@ namespace WebApp.Identity
 
             services.AddDbContext<MyUserDbContext>(
                 opt => opt.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly))
-            );           
+            );
 
-            services.AddIdentityCore<MyUser>(options => { });
+            services.AddIdentity<MyUser, IdentityRole>(options => { })
+                .AddEntityFrameworkStores<MyUserDbContext>();
 
-            //services.AddScoped<IUserStore<MyUser>, MyUserStore>();
-            services.AddScoped<IUserStore<MyUser>, 
-                UserOnlyStore<MyUser, MyUserDbContext>>();
+            services.AddScoped<IUserClaimsPrincipalFactory<MyUser>, MyUserClaimsPrincipalFactory>();
 
-            // ANTES DE VERIFICAR SE TEM PERMISSÃO VERIFICA SE USUARIO TA AUTENTICADO POR COOKIE
-            services.AddAuthentication("cookies")  
-                // INDICA O CAMINHO A REDIRECIONAR CASO USUÁRIO NÃO AUTENTICADO
-                .AddCookie("cookies", options => options.LoginPath = "/Home/Login"); 
+            services.ConfigureApplicationCookie(options => options.LoginPath = "/Home/Login"); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
