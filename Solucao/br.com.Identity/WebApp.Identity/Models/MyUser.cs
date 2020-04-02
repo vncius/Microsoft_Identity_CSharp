@@ -8,6 +8,13 @@ namespace WebApp.Identity.Models
 {
     public class MyUser : IdentityUser
     {
-        public string nomeCompleto { get; set; }
+        public string NomeCompleto { get; set; }
+        public string OrganizationId { get; set; }
+    }
+
+    public class Organization
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
     }
 }

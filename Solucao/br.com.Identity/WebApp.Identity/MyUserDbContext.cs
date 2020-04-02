@@ -17,7 +17,23 @@ namespace WebApp.Identity
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            // NO DBCONTEXT FICA AS REGRAS DE BANCO DE DADOS
             base.OnModelCreating(builder);
+
+            builder.Entity<Organization>(org => {
+                // Para a tabela organizations
+                org.ToTable("Organizations");
+                // É definido qual o ID
+                org.HasKey(x => x.Id);
+                // Uma organização pode ter muitos Usuários
+                org.HasMany<MyUser>()
+                    // E um usuário possui uma organização
+                    .WithOne()
+                    // Define qual o campo ta tabela myuser que é foreign key da tabela organization
+                    .HasForeignKey(x => x.OrganizationId)
+                    // Define se a foreign key é obrigatória
+                    .IsRequired(false);
+            });
         }
     }
 }
