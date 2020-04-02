@@ -18,12 +18,16 @@ namespace WebApp.Identity.Controllers
         //private readonly UserManager<MyUser> _userManager;
         private readonly UserManager<MyUser> _userManager;
         private readonly IUserClaimsPrincipalFactory<MyUser> _userClaimsPrincipalFactory;
+        private readonly SignInManager<MyUser> _signInManager;
 
         //public HomeController(UserManager<MyUser> userManager)
-        public HomeController(UserManager<MyUser> userManager, IUserClaimsPrincipalFactory<MyUser> userClaimsPrincipalFactory)
+        public HomeController(UserManager<MyUser> userManager, 
+            IUserClaimsPrincipalFactory<MyUser> userClaimsPrincipalFactory,
+            SignInManager<MyUser> signInManager)
         {
             _userManager = userManager;
             _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
+            _signInManager = signInManager;
         }      
 
         public IActionResult Index()
@@ -60,18 +64,25 @@ namespace WebApp.Identity.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByNameAsync(model.UserName);
+                var signInResult = await _signInManager.PasswordSignInAsync(model.UserName, 
+                                                                            model.Password,
+                                                                            false, false);
 
-                if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+                if (signInResult.Succeeded)
                 {
-                                           // O USERCLAIMS CRIA 3 CLAINS AUTOMÁTICAMENTE
-                    var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
-                    
-                    // ADICIONA AS CLAIMS DO USUÁRIO EM COOKIE
-                    await HttpContext.SignInAsync("Identity.Application", principal);
-
                     return RedirectToAction("About");
                 }
+
+                //var user = await _userManager.FindByNameAsync(model.UserName);
+
+                //if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+                //{
+                //                           // O USERCLAIMS CRIA 3 CLAINS AUTOMÁTICAMENTE
+                //    var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
+                    
+                //    // ADICIONA AS CLAIMS DO USUÁRIO EM COOKIE
+                //    await HttpContext.SignInAsync("Identity.Application", principal);                    
+                //}
 
                 ModelState.AddModelError("", "Usuário ou Senha Invalida");
             }
