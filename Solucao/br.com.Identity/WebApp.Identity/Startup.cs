@@ -42,11 +42,18 @@ namespace WebApp.Identity
             );
 
             services.AddIdentity<MyUser, IdentityRole>(options => { })
-                .AddEntityFrameworkStores<MyUserDbContext>();
+                .AddEntityFrameworkStores<MyUserDbContext>()
+                .AddDefaultTokenProviders(); // DEFAULT TOKEN PROVIDER É UM PROVEDOR DE TOKENS PADRÃO
 
             services.AddScoped<IUserClaimsPrincipalFactory<MyUser>, MyUserClaimsPrincipalFactory>();
 
+            services.Configure<DataProtectionTokenProviderOptions>(
+                options => options.TokenLifespan = TimeSpan.FromHours(3) // CONFIGURAÇÃO DE TIMER DE VALIDADE DO TOKEN            
+            );
+
             services.ConfigureApplicationCookie(options => options.LoginPath = "/Home/Login"); 
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
