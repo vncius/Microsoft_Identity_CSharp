@@ -43,6 +43,13 @@ namespace WebApp.Identity
 
             services.AddIdentity<MyUser, IdentityRole>(options => {
                 options.SignIn.RequireConfirmedEmail = true;
+
+                // CONFIGURAÇÕES DE SENHAS
+                options.Password.RequireDigit = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 4;
             })
                 .AddEntityFrameworkStores<MyUserDbContext>()
                 .AddDefaultTokenProviders(); // DEFAULT TOKEN PROVIDER É UM PROVEDOR DE TOKENS PADRÃO
