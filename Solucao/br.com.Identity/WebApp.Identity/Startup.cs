@@ -51,6 +51,9 @@ namespace WebApp.Identity
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequiredLength = 4;
+
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
             })
                 .AddEntityFrameworkStores<MyUserDbContext>()
                 .AddDefaultTokenProviders() // DEFAULT TOKEN PROVIDER É UM PROVEDOR DE TOKENS PADRÃO

@@ -63,21 +63,33 @@ namespace WebApp.Identity.Controllers
             {
                 var user = await _userManager.FindByNameAsync(model.UserName);
 
-                if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+                if (user != null && !await _userManager.IsLockedOutAsync(user))
                 {
-                    if (!await _userManager.IsEmailConfirmedAsync(user))
+                    if (await _userManager.CheckPasswordAsync(user, model.Password))
                     {
-                        ModelState.AddModelError("", "Email invalid!");
-                        return View();
+                        if (!await _userManager.IsEmailConfirmedAsync(user))
+                        {
+                            ModelState.AddModelError("", "Email invalid!");
+                            return View();
+                        }
+
+                        await _userManager.ResetAccessFailedCountAsync(user);
+
+                        // O USERCLAIMS CRIA 3 CLAINS AUTOMÁTICAMENTE
+                        var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
+
+                        // ADICIONA AS CLAIMS DO USUÁRIO EM COOKIE
+                        await HttpContext.SignInAsync("Identity.Application", principal);
+
+                        return RedirectToAction("About");
                     }
 
-                    // O USERCLAIMS CRIA 3 CLAINS AUTOMÁTICAMENTE
-                    var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
+                    await _userManager.AccessFailedAsync(user);
 
-                    // ADICIONA AS CLAIMS DO USUÁRIO EM COOKIE
-                    await HttpContext.SignInAsync("Identity.Application", principal);
-
-                    return RedirectToAction("About");
+                    if (await _userManager.IsLockedOutAsync(user))
+                    { 
+                        // ENVIAR E-MAIL SUGERINDO MUDAR SENHA
+                    }
                 }
                                
                 ModelState.AddModelError("", "Usuário ou Senha Invalida");
