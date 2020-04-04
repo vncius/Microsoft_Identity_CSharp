@@ -41,7 +41,9 @@ namespace WebApp.Identity
                 opt => opt.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly))
             );
 
-            services.AddIdentity<MyUser, IdentityRole>(options => { })
+            services.AddIdentity<MyUser, IdentityRole>(options => {
+                options.SignIn.RequireConfirmedEmail = true;
+            })
                 .AddEntityFrameworkStores<MyUserDbContext>()
                 .AddDefaultTokenProviders(); // DEFAULT TOKEN PROVIDER É UM PROVEDOR DE TOKENS PADRÃO
 

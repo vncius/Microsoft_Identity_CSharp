@@ -65,6 +65,12 @@ namespace WebApp.Identity.Controllers
 
                 if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
                 {
+                    if (!await _userManager.IsEmailConfirmedAsync(user))
+                    {
+                        ModelState.AddModelError("", "Email invalid!");
+                        return View();
+                    }
+
                     // O USERCLAIMS CRIA 3 CLAINS AUTOMÁTICAMENTE
                     var principal = await _userClaimsPrincipalFactory.CreateAsync(user);
 
@@ -79,6 +85,11 @@ namespace WebApp.Identity.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterModel model)
@@ -93,17 +104,19 @@ namespace WebApp.Identity.Controllers
                     {
                         Id = Guid.NewGuid().ToString(),
                         UserName = model.UserName,
-
+                        Email = model.UserName
                     };
 
-                    //user = new MyUser()
-                    //{
-                    //    Id = Guid.NewGuid().ToString(),
-                    //    UserName = model.UserName,
-
-                    //};
-
                     var result = await _userManager.CreateAsync(user, model.Password);
+
+                    if (result.Succeeded)
+                    {
+                        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                        var confirmationEmail = Url.Action("ConfirmEmailAddress", "Home",
+                                                        new { token = token, email = user.Email }, Request.Scheme);
+
+                        System.IO.File.WriteAllText("resetLink.txt", confirmationEmail); // LINK GERADO PARA CONFIRMAR EMAIL
+                    }
                 }
 
                 return View("Sucess");
@@ -113,10 +126,89 @@ namespace WebApp.Identity.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register()
+        public async Task<IActionResult> ConfirmEmailAddress(string token, string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user != null)
+            {
+                var result = await _userManager.ConfirmEmailAsync(user, token);
+
+                if (result.Succeeded)
+                {
+                    return View(nameof(Sucess));
+                }
+
+                return View("Error");
+            }
+
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ForgotPassword()
         {
             return View();
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user != null)
+                {
+                    var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var resetURL = Url.Action("ResetPassword", "Home",
+                        new { token = token, email = model.Email }, Request.Scheme);
+
+                    System.IO.File.WriteAllText("resetLink.txt", resetURL); // LINK GERADO PARA RECUPERAR PASSWORD
+
+                    return View(nameof(Sucess));
+                }
+                else
+                { 
+                    // IMPLEMENTAR VIEW USUÁRIO NÃO ENCONTRADO
+                }
+            }
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            return View(new ResetPasswordModel {  Token = token, Email = email });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user != null)
+                {
+                    var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+
+                    if (!result.Succeeded)
+                    {
+                        foreach (var erro in result.Errors)
+                        {
+                            ModelState.AddModelError("", erro.Description);
+                        }
+                        return View();
+                    }                    
+                    return View(nameof(Sucess));
+                }
+                ModelState.AddModelError("", "Invalid Request");              
+            }
+            return View();
+        }
+
+        
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
