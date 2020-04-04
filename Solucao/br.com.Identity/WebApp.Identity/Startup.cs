@@ -41,7 +41,8 @@ namespace WebApp.Identity
                 opt => opt.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly))
             );
 
-            services.AddIdentity<MyUser, IdentityRole>(options => {
+            services.AddIdentity<MyUser, IdentityRole>(options =>
+            {
                 options.SignIn.RequireConfirmedEmail = true;
 
                 // CONFIGURAÇÕES DE SENHAS
@@ -52,7 +53,8 @@ namespace WebApp.Identity
                 options.Password.RequiredLength = 4;
             })
                 .AddEntityFrameworkStores<MyUserDbContext>()
-                .AddDefaultTokenProviders(); // DEFAULT TOKEN PROVIDER É UM PROVEDOR DE TOKENS PADRÃO
+                .AddDefaultTokenProviders() // DEFAULT TOKEN PROVIDER É UM PROVEDOR DE TOKENS PADRÃO
+                .AddPasswordValidator<NoValidatorPassword<MyUser>>(); // ADICIONADO CLASSE DE VALIDAÇÕES DE PASSWORD
 
             services.AddScoped<IUserClaimsPrincipalFactory<MyUser>, MyUserClaimsPrincipalFactory>();
 

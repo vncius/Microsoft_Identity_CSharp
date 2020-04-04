@@ -117,6 +117,15 @@ namespace WebApp.Identity.Controllers
 
                         System.IO.File.WriteAllText("resetLink.txt", confirmationEmail); // LINK GERADO PARA CONFIRMAR EMAIL
                     }
+                    else
+                    {
+                        foreach (var erro in result.Errors)
+                        {
+                            ModelState.AddModelError("", erro.Description);
+                        }
+
+                        return View();
+                    }
                 }
 
                 return View("Sucess");
