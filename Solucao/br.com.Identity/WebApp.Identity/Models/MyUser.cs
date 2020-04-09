@@ -11,6 +11,8 @@ namespace WebApp.Identity.Models
         public string NomeCompleto { get; set; }
         public string OrganizationId { get; set; }
         public string Member { get; set; } = "Member";
+
+        public override Boolean TwoFactorEnabled { get; set; } = true;
     }
 
     public class Organization
