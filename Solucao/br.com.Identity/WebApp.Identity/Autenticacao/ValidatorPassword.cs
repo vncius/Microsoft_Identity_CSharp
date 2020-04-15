@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WebApp.Identity.Autenticacao
 {
-    public class NoValidatorPassword<TUser> : IPasswordValidator<TUser> where TUser : class
+    public class ValidatorPassword<TUser> : IPasswordValidator<TUser> where TUser : class
     {
         public async Task<IdentityResult> ValidateAsync(UserManager<TUser> manager, TUser user, string password)
         {

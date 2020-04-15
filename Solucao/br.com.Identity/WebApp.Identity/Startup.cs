@@ -12,14 +12,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WebApp.Identity.Autenticacao;
+using WebApp.Identity.Autenticacao.Model;
+using WebApp.Identity.Enum;
 using WebApp.Identity.Models;
 
 namespace WebApp.Identity
 {
     public class Startup
     {
-
-        const string connectionString = @"Integrated Security=SSPI;Persist Security Info=False;User ID=sa;Initial Catalog=IdentityCurso;Data Source=DESKTOP-G0OPKKF\SQLEXPRESS";
 
         public Startup(IConfiguration configuration)
         {
@@ -37,11 +37,12 @@ namespace WebApp.Identity
                .GetTypeInfo().Assembly
                .GetName().Name;
 
-            services.AddDbContext<MyUserDbContext>(
-                opt => opt.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly))
+            services.AddDbContext<WebAppIdentityDbContext>(
+                opt => opt.UseMySql(Configuration.GetConnectionString("WebAppIdentityContext"),
+                builder => builder.MigrationsAssembly(migrationAssembly))
             );
 
-            services.AddIdentity<MyUser, IdentityRole>(options =>
+            services.AddIdentity<MyUser, MyRole>(options =>
             {
                 options.SignIn.RequireConfirmedEmail = true;
 
@@ -55,9 +56,9 @@ namespace WebApp.Identity
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.AllowedForNewUsers = true;
             })
-                .AddEntityFrameworkStores<MyUserDbContext>()
+                .AddEntityFrameworkStores<WebAppIdentityDbContext>()
                 .AddDefaultTokenProviders() // DEFAULT TOKEN PROVIDER É UM PROVEDOR DE TOKENS PADRÃO
-                .AddPasswordValidator<NoValidatorPassword<MyUser>>(); // ADICIONADO CLASSE DE VALIDAÇÕES DE PASSWORD
+                .AddPasswordValidator<ValidatorPassword<MyUser>>(); // ADICIONADO CLASSE DE VALIDAÇÕES DE PASSWORD
 
             services.AddScoped<IUserClaimsPrincipalFactory<MyUser>, MyUserClaimsPrincipalFactory>();
 
@@ -65,13 +66,12 @@ namespace WebApp.Identity
                 options => options.TokenLifespan = TimeSpan.FromHours(3) // CONFIGURAÇÃO DE TIMER DE VALIDADE DO TOKEN            
             );
 
-            services.ConfigureApplicationCookie(options => options.LoginPath = "/Home/Login"); 
-
+            services.ConfigureApplicationCookie(options => options.LoginPath = "/Home/Login");
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -94,8 +94,26 @@ namespace WebApp.Identity
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Account}/{action=Login}/{id?}");
             });
+            CreateRoles(serviceProvider).Wait();
+        }
+
+        private async Task CreateRoles(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<MyRole>>();
+            string[] rolesNames = { EnumPerfil.Administrador.ToString(), 
+                                    EnumPerfil.Coordenador.ToString(), 
+                                    EnumPerfil.Professor.ToString() };
+            IdentityResult result;
+            foreach (var namesRole in rolesNames)
+            {
+                var roleExist = await roleManager.RoleExistsAsync(namesRole);
+                if (!roleExist)
+                {
+                    result = await roleManager.CreateAsync(new MyRole(namesRole));
+                }
+            }
         }
     }
 }

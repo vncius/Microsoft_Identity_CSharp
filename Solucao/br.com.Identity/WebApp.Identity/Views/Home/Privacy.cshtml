@@ -1,6 +1,14 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
-}
-<h1>@ViewData["Title"]</h1>
+﻿@inject IAuthorizationService AuthorizationService
+@using WebApp.Identity.Enum
+@using Microsoft.AspNetCore.Authorization
 
-<p>Use this page to detail your site's privacy policy.</p>
+@*@if ((await AuthorizationService.AuthorizeAsync(User, EnumPerfil.Administrador.ToString())).Succeeded)
+{*@
+    <ul class="mr-auto navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link">ADMIN</a>
+        </li>
+    </ul>
+@*}*@
+
+
