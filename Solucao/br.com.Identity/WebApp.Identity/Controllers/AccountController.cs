@@ -46,7 +46,7 @@ namespace WebApp.Identity.Controllers
                     {
                         if (!await _userManager.IsEmailConfirmedAsync(user))
                         {
-                            ModelState.AddModelError("", "Email invalid!");
+                            ModelState.AddModelError("", "Email invalido!");
                             return View();
                         }
 
